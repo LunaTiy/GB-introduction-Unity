@@ -6,47 +6,103 @@ public class GhostWalking : MonoBehaviour
 {
     [SerializeField] private float _movementSpeed;
     [SerializeField] private float _angularSpeed;
+	[SerializeField] private float _durationLooking;
     [Space]
     [SerializeField] private Transform _path;
 
-	private List<Transform> _points;
-	private Vector3 _currentPosition;
-	private int _indexCurrentPoint;
+	private Animator _animator;
+
+	private List<Transform> _pointsPath;
+	private Vector3 _targetPosition;
+	private int _indexTargetPoint;
+
+	private Vector3 _prevPosition;
+	private float _currentDurationLooking;
+	private bool isLooking;
 
 	private void Start()
 	{
-		_points = new List<Transform>();
+		_animator = GetComponent<Animator>();
+
+		_pointsPath = new List<Transform>();
 		SetPointsFromPath();
 
-		_indexCurrentPoint = 0;
-		_currentPosition = _points[_indexCurrentPoint].position;
+		_indexTargetPoint = 0;
+		_targetPosition = _pointsPath[_indexTargetPoint].position;
+		_prevPosition = _targetPosition;
+
+		isLooking = true;
 	}
 
 	private void Update()
 	{
 		Movement();
+		Looking();
 	}
 
 	private void Movement()
 	{
-		if(_currentPosition == transform.position)
+		if (!isLooking)
 		{
-			_indexCurrentPoint++;
+			if (_targetPosition == transform.position)
+			{
+				SavePositionForLooking();
+				SavePositionForMovement();
+				isLooking = true;
+				_animator.SetBool("Walk", false);
+			}
 
-			if (_indexCurrentPoint == _points.Count) _indexCurrentPoint = 0;
-
-			_currentPosition = _points[_indexCurrentPoint].position;
+			_animator.SetBool("Walk", true);
+			transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _movementSpeed * Time.deltaTime);
 		}
+	}
 
-		Debug.Log("Ghost followed position:" + _currentPosition);
-		transform.position = Vector3.MoveTowards(transform.position, _currentPosition, _movementSpeed * Time.deltaTime);
+	private void Looking()
+	{
+		if (isLooking)
+		{
+			_currentDurationLooking += Time.deltaTime;
+
+			if (_currentDurationLooking < _durationLooking)
+			{
+				Quaternion targetRotation = Quaternion.LookRotation(_prevPosition - transform.position);
+				transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, _angularSpeed * Time.deltaTime);
+			}
+			else
+			{
+				Vector3 directionVector = _targetPosition - transform.position;
+
+				Quaternion targetRotation = Quaternion.LookRotation(directionVector);
+				transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, _angularSpeed * Time.deltaTime);
+
+				if (Vector3.Angle(transform.forward, directionVector) < 5f)
+				{
+					_currentDurationLooking = 0f;
+					isLooking = false;
+				}
+			}
+		}
+	}
+
+	private void SavePositionForLooking()
+	{
+		int indexPointForLooking = _indexTargetPoint - 1;
+		if (indexPointForLooking < 0) indexPointForLooking = _pointsPath.Count - 1;
+		_prevPosition = _pointsPath[indexPointForLooking].position;
+	}
+
+	private void SavePositionForMovement()
+	{
+		_indexTargetPoint++;
+		if (_indexTargetPoint == _pointsPath.Count) _indexTargetPoint = 0;
+		_targetPosition = _pointsPath[_indexTargetPoint].position;
 	}
 
 	private void SetPointsFromPath()
 	{
 		for (int i = 0; i < _path.childCount; i++) {
 			Transform point = _path.GetChild(i);
-			_points.Add(point);
+			_pointsPath.Add(point);
 		}
 	}
 }
