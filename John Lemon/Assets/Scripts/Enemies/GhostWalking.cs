@@ -11,6 +11,7 @@ public class GhostWalking : MonoBehaviour
     [SerializeField] private Transform _path;
 
 	private Animator _animator;
+	private Scan _scan;
 
 	private List<Transform> _pointsPath;
 	private Vector3 _targetPosition;
@@ -18,11 +19,13 @@ public class GhostWalking : MonoBehaviour
 
 	private Vector3 _prevPosition;
 	private float _currentDurationLooking;
-	private bool isLooking;
+	private bool _isLooking;
+	private bool _isLookingPlayer;
 
 	private void Start()
 	{
 		_animator = GetComponent<Animator>();
+		_scan = GetComponent<Scan>();
 
 		_pointsPath = new List<Transform>();
 		SetPointsFromPath();
@@ -31,7 +34,7 @@ public class GhostWalking : MonoBehaviour
 		_targetPosition = _pointsPath[_indexTargetPoint].position;
 		_prevPosition = _targetPosition;
 
-		isLooking = true;
+		_isLooking = true;
 	}
 
 	private void Update()
@@ -42,24 +45,31 @@ public class GhostWalking : MonoBehaviour
 
 	private void Movement()
 	{
-		if (!isLooking)
+		if (_scan.isVisiblePlayer)
 		{
-			if (_targetPosition == transform.position)
+			transform.position = Vector3.MoveTowards(transform.position, _scan.playerPosition, _movementSpeed * Time.deltaTime);
+		}
+		else
+		{
+			if (!_isLooking)
 			{
-				SavePositionForLooking();
-				SavePositionForMovement();
-				isLooking = true;
-				_animator.SetBool("Walk", false);
-			}
+				if (_targetPosition == transform.position)
+				{
+					SavePositionForLooking();
+					SavePositionForMovement();
+					_isLooking = true;
+					_animator.SetBool("Walk", false);
+				}
 
-			_animator.SetBool("Walk", true);
-			transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _movementSpeed * Time.deltaTime);
+				_animator.SetBool("Walk", true);
+				transform.position = Vector3.MoveTowards(transform.position, _targetPosition, _movementSpeed * Time.deltaTime);
+			}
 		}
 	}
 
 	private void Looking()
 	{
-		if (isLooking)
+		if (_isLooking)
 		{
 			_currentDurationLooking += Time.deltaTime;
 
@@ -78,7 +88,7 @@ public class GhostWalking : MonoBehaviour
 				if (Vector3.Angle(transform.forward, directionVector) < 5f)
 				{
 					_currentDurationLooking = 0f;
-					isLooking = false;
+					_isLooking = false;
 				}
 			}
 		}

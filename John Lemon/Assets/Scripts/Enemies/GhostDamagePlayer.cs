@@ -12,6 +12,7 @@ public class GhostDamagePlayer : MonoBehaviour
 		{
 			_player = other.gameObject.GetComponent<PlayerMono>().player;
 			_player.LoseHealth();
+			Destroy(gameObject);
 		}
 	}
 }
