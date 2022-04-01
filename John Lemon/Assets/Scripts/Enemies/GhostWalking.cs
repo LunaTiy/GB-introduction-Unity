@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GhostWalking : MonoBehaviour
-{
-    [SerializeField] private float _movementSpeed;
-    [SerializeField] private float _angularSpeed;
-	[SerializeField] private float _durationLooking;
-    [Space]
-    [SerializeField] private Transform _path;
+{	
+	[SerializeField] private float _movementSpeed = 1.5f;
+    [SerializeField] private float _angularSpeed = 10f;
+	[SerializeField] private float _durationLooking = 5f;
+	[Space]
+	public Transform path;
 
 	private Animator _animator;
 	private Scan _scan;
@@ -110,8 +110,8 @@ public class GhostWalking : MonoBehaviour
 
 	private void SetPointsFromPath()
 	{
-		for (int i = 0; i < _path.childCount; i++) {
-			Transform point = _path.GetChild(i);
+		for (int i = 0; i < path.childCount; i++) {
+			Transform point = path.GetChild(i);
 			_pointsPath.Add(point);
 		}
 	}

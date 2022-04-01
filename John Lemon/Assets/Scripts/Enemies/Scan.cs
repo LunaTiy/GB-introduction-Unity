@@ -4,26 +4,21 @@ using UnityEngine;
 
 public class Scan : MonoBehaviour
 {
-	[SerializeField] private int _countRays = 3;
-	[SerializeField] private float _angle = 30f;
+	[SerializeField] private int _countRays = 15;
+	[SerializeField] private float _angle = 45f;
 	[SerializeField] private float _distance = 10f;
-	[SerializeField] private Vector3 _offset;
+	[SerializeField] private Vector3 _offset = new Vector3(0f, 0.5f, 0f);
 	[Space]
-	[SerializeField] private Transform _playerTransform;
 
+	public Transform playerTransform;
 	[HideInInspector] public bool isVisiblePlayer;
 	[HideInInspector] public Vector3 playerPosition;
 
 	void Update()
 	{
-		if (Vector3.Distance(transform.position, _playerTransform.position) < _distance)
+		if (Vector3.Distance(transform.position, playerTransform.position) < _distance)
 		{
 			RayToScan();
-
-			//if (isVisiblePlayer)
-			//{
-			//	transform.position = Vector3.MoveTowards(transform.position, _playerPosition, 1f * Time.deltaTime);
-			//}
 		}
 	}
 
