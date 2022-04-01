@@ -11,18 +11,18 @@ public class PlayerLogic
 	public readonly int maxHealth = 5;
 	public readonly int maxBomb = 5;
 
+	public Inventory inventory;
+
 	private int _health;
-	private bool _isKey;
 	private int _countBomb;
 
 	public PlayerLogic()
 	{
+		inventory = new Inventory();
+
 		_health = 3;
-		_isKey = false;
 		_countBomb = 3;
 	}
-
-	public bool IsKey{ get => _isKey; }
 
 	public int Health { get => _health; }
 
@@ -65,9 +65,23 @@ public class PlayerLogic
 		return true;
 	}
 
-	public void TakeKey()
+	public bool IsPickupItem(InventoryItems item)
 	{
-		_isKey = true;
-		eventUpdateUI?.Invoke();
+		bool isAdded = inventory.IsAddItem(item);
+
+		if (isAdded)
+			eventUpdateUI?.Invoke();
+
+		return isAdded;
+	}
+
+	public bool IsUseItem(InventoryItems item)
+	{
+		bool isUsed = inventory.IsUseItem(item);
+
+		if (isUsed)
+			eventUpdateUI?.Invoke();
+
+		return isUsed;
 	}
 }

@@ -58,7 +58,7 @@ public class Scan : MonoBehaviour
 			if (hit.transform.gameObject.tag == "Player")
 			{
 				Debug.DrawLine(position, hit.point, Color.green);
-				playerPosition = hit.point;
+				playerPosition = hit.transform.position;
 				isVisiblePlayer = true;
 			}
 			else

@@ -10,6 +10,6 @@ public class RotatingItem : MonoBehaviour
 	private void Update()
 	{
 		float angleRotation = 360 / _duration * Time.deltaTime;
-		transform.Rotate(new Vector3(0, angleRotation, 0));
+		transform.Rotate(new Vector3(transform.rotation.x, angleRotation, transform.rotation.z));
 	}
 }
